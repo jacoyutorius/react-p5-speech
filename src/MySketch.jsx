@@ -93,19 +93,19 @@ export default function MySketch() {
     drawGeometry(p5);
 
     // 音量バー
-    p5.fill(255);
-    p5.noStroke();
-    p5.rect(10, 10, volume * 300, 20);
-    p5.fill(200);
-    p5.text(`音量: ${volume.toFixed(2)}`, 320, 28);
+    // p5.fill(255);
+    // p5.noStroke();
+    // p5.rect(10, 10, volume * 300, 20);
+    // p5.fill(200);
+    // p5.text(`音量: ${volume.toFixed(2)}`, 320, 28);
 
     // スライディングテキスト
     p5.fill(255, 255, 0);
     p5.textSize(32);
-    p5.text(transcript, slidingTextX, 360);
+    p5.text(transcript, slidingTextX, p5.windowHeight / 2);
     slidingTextX -= 2 + volume * 3;
     if (slidingTextX < -p5.textWidth(transcript)) {
-      slidingTextX = 600;
+      slidingTextX = p5.windowWidth; // テキストが画面外に出たらリセット
     }
   };
 
