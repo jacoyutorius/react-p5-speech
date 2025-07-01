@@ -4,6 +4,7 @@ import Sketch from "react-p5";
 
 let volume = 0;
 let transcript = "";
+let slidingTextX = 600; // 初期位置（画面右端）
 
 export const setVolume = (v) => {
   volume = v;
@@ -11,6 +12,7 @@ export const setVolume = (v) => {
 
 export const setTranscript = (t) => {
   transcript = t;
+  slidingTextX = 600; // 新しい発話が来たら右端から再スタート
 };
 
 export default function MySketch() {
@@ -32,6 +34,16 @@ export default function MySketch() {
     p5.text(`発話: ${transcript}`, 10, 70);
     p5.fill(100, 100, 255);
     p5.rect(10, 100, volume * 300, 30);
+
+    // スライドアニメーション（左へ流す）
+    p5.fill(50, 50, 200);
+    p5.text(transcript, slidingTextX, 200);
+    slidingTextX -= 2; // 左に移動
+
+    // 画面外に出たらリセット（オプション）
+    if (slidingTextX < -p5.textWidth(transcript)) {
+      slidingTextX = 600;
+    }
   };
 
   return <Sketch setup={setup} draw={draw} />;
