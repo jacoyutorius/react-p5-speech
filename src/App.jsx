@@ -1,35 +1,59 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useEffect, useRef } from "react";
+import MySketch, { setTranscript, setVolume } from "./MySketch";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const recognitionRef = useRef(null);
+
+  useEffect(() => {
+    // SpeechRecognition
+    const SpeechRecognition =
+      window.SpeechRecognition || window.webkitSpeechRecognition;
+    const recognition = new SpeechRecognition();
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.lang = "ja-JP";
+    recognition.onresult = (e) => {
+      const transcript = Array.from(e.results)
+        .map((r) => r[0].transcript)
+        .join("");
+      setTranscript(transcript);
+    };
+    recognition.start();
+    recognitionRef.current = recognition;
+
+    // Audio volume
+    navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
+      const audioContext = new AudioContext();
+      const analyser = audioContext.createAnalyser();
+      const source = audioContext.createMediaStreamSource(stream);
+      const dataArray = new Uint8Array(analyser.fftSize);
+      source.connect(analyser);
+
+      const updateVolume = () => {
+        analyser.getByteTimeDomainData(dataArray);
+        let sum = 0;
+        for (let i = 0; i < dataArray.length; i++) {
+          const v = dataArray[i] / 128.0 - 1.0;
+          sum += v * v;
+        }
+        const volume = Math.sqrt(sum / dataArray.length);
+        setVolume(volume * 10);
+        requestAnimationFrame(updateVolume);
+      };
+      updateVolume();
+    });
+
+    return () => {
+      recognition.stop();
+    };
+  }, []);
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <div>
+      <h1>🎙️ react-p5 で音声可視化</h1>
+      <MySketch />
+    </div>
+  );
 }
 
-export default App
+export default App;
