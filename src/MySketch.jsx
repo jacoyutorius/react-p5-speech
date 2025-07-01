@@ -3,7 +3,7 @@ import Sketch from "react-p5";
 
 let volume = 0;
 let transcript = "";
-let slidingTextX = 600;
+let slidingTextX = window.innerWidth; // スライディングテキストの初期位置
 // let angle = 0;
 let bgColor = [0, 0, 0]; // 背景色（初期：黒）
 
@@ -14,7 +14,7 @@ export const setVolume = (v) => {
 export const setTranscript = (t) => {
   if (t !== transcript) {
     transcript = t;
-    slidingTextX = 600;
+    slidingTextX = window.innerWidth; // テキストが更新されたら位置をリセット
 
     // 💡 キーワード反応
     if (t.includes("赤")) {
