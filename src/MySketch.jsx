@@ -4,9 +4,8 @@ import Sketch from "react-p5";
 let volume = 0;
 let transcript = "";
 let slidingTextX = 600;
-let angle = 0;
+// let angle = 0;
 let bgColor = [0, 0, 0]; // 背景色（初期：黒）
-let customFont;
 
 export const setVolume = (v) => {
   volume = v;
@@ -50,18 +49,43 @@ export default function MySketch() {
     }
   };
 
+  // 円形の幾何学模様を描画
+  // const drawGeometry = (p5) => {
+  //   p5.push();
+  //   p5.translate(p5.width / 2, p5.height / 2);
+  //   p5.rotate(angle);
+  //   p5.noFill();
+  //   const size = 100 + Math.sin(angle * 2) * 30 + volume * 50;
+  //   p5.stroke(255, 255 - volume * 100, 200, 150);
+  //   p5.ellipse(0, 0, size, size);
+  //   p5.pop();
+  //   angle += 0.01 + volume * 0.05;
+  // };
+
+  // 円形の幾何学模様を描画（パーリンノイズを使用）
+  // 音量に応じて変化する
   const drawGeometry = (p5) => {
     p5.push();
     p5.translate(p5.width / 2, p5.height / 2);
-    p5.rotate(angle);
     p5.noFill();
-    const size = 100 + Math.sin(angle * 2) * 30 + volume * 50;
-    p5.stroke(255, 255 - volume * 100, 200, 150);
-    p5.ellipse(0, 0, size, size);
+    p5.stroke(255, 100 + volume * 100, 200, 150);
+    p5.beginShape();
+  
+    const baseRadius = 80 + volume * 50;
+    const segments = 100;
+    for (let i = 0; i <= segments; i++) {
+      const angle = p5.map(i, 0, segments, 0, p5.TWO_PI);
+      const offset = p5.noise(i * 0.1, p5.frameCount * 0.01); // パーリンノイズでゆらぎ
+      const radius = baseRadius + offset * 50; // 半径にノイズを足す
+      const x = radius * Math.cos(angle);
+      const y = radius * Math.sin(angle);
+      p5.vertex(x, y);
+    }
+  
+    p5.endShape(p5.CLOSE);
     p5.pop();
-    angle += 0.01 + volume * 0.05;
   };
-
+  
   const draw = (p5) => {
     p5.background(...bgColor);
 
@@ -77,6 +101,7 @@ export default function MySketch() {
 
     // スライディングテキスト
     p5.fill(255, 255, 0);
+    p5.textSize(32);
     p5.text(transcript, slidingTextX, 360);
     slidingTextX -= 2 + volume * 3;
     if (slidingTextX < -p5.textWidth(transcript)) {

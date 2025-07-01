@@ -52,7 +52,6 @@ function App() {
 
   return (
     <div>
-      <h1>🎙️ react-p5 で音声可視化</h1>
       <MySketch />
     </div>
   );
