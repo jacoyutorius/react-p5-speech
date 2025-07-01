@@ -6,6 +6,7 @@ let transcript = "";
 let slidingTextX = 600;
 let angle = 0;
 let bgColor = [0, 0, 0]; // 背景色（初期：黒）
+let customFont;
 
 export const setVolume = (v) => {
   volume = v;
@@ -38,8 +39,8 @@ export default function MySketch() {
     }
 
     p5.createCanvas(p5.windowWidth, p5.windowHeight).parent(canvasParentRef);
+    p5.textFont("BIZ UDPGothic");
     p5.textSize(24);
-    p5.textFont("sans-serif");
   };
 
   const drawNoise = (p5) => {
