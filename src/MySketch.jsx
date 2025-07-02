@@ -5,6 +5,7 @@ let volume = 0;
 let transcript = "";
 let bgColor = [0, 0, 0]; // 背景色（初期：黒）
 let textParticles = [];
+let ambientParticles = [];
 
 export const setVolume = (v) => {
   volume = v;
@@ -47,6 +48,32 @@ class TextParticle {
   }
 }
 
+class AmbientParticle {
+  constructor(p5) {
+    this.p5 = p5;
+    this.pos = p5.createVector(p5.random(p5.width), p5.random(p5.height));
+    this.vel = p5.createVector(p5.random(-0.2, 0.2), p5.random(-0.2, 0.2));
+    this.size = p5.random(1, 4);
+    this.opacity = p5.random(50, 120);
+  }
+
+  update() {
+    this.pos.add(this.vel);
+
+    // 画面外に出たらループ
+    if (this.pos.x < 0) this.pos.x = this.p5.width;
+    if (this.pos.x > this.p5.width) this.pos.x = 0;
+    if (this.pos.y < 0) this.pos.y = this.p5.height;
+    if (this.pos.y > this.p5.height) this.pos.y = 0;
+  }
+
+  draw() {
+    this.p5.noStroke();
+    this.p5.fill(255, this.opacity);
+    this.p5.ellipse(this.pos.x, this.pos.y, this.size);
+  }
+}
+
 export const setTranscript = (t) => {
   if (t !== transcript) {
     transcript = t;
@@ -73,6 +100,11 @@ export default function MySketch() {
     p5.textFont("BIZ UDPGothic");
     p5.textSize(24);
 
+    // AmbientParticle の初期化
+    for (let i = 0; i < 100; i++) {
+      ambientParticles.push(new AmbientParticle(p5));
+    }
+
     window.p5Instance = p5; // 👈 グローバル参照用
   };
 
@@ -80,6 +112,13 @@ export default function MySketch() {
     for (let i = 0; i < 100; i++) {
       p5.stroke(255, 255, 255, 20);
       p5.point(p5.random(p5.width), p5.random(p5.height));
+    }
+  };
+
+  const drawAmbientParticles = (p5) => {
+    for (const particle of ambientParticles) {
+      particle.update();
+      particle.draw();
     }
   };
 
@@ -118,9 +157,9 @@ export default function MySketch() {
   const draw = (p5) => {
     p5.background(...bgColor);
 
+    drawAmbientParticles(p5); // 🌌 背景の浮遊粒子
     drawNoise(p5);
     drawGeometry(p5);
-    // drawTranscripts(p5); // 🎉 新たな派手表示
     drawTextParticles(p5); // 👈 NEW: タイポ爆発演出
 
     // 音量バー
